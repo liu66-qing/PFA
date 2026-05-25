@@ -1,0 +1,24 @@
+{
+  "seg_only": {
+    "interior_dice": 0.304,
+    "boundary_dice": 0.287,
+    "noisy_dice": 0.313,
+    "adjacent_switch_acc": 0.325,
+    "adjacent_switch_dice": 0.209,
+    "n_interior": 80,
+    "n_boundary": 80,
+    "n_noisy": 80,
+    "n_switch_pairs": 80
+  },
+  "pfa_ours": {
+    "interior_dice": 0.319,
+    "boundary_dice": 0.218,
+    "noisy_dice": 0.282,
+    "adjacent_switch_acc": 0.963,
+    "adjacent_switch_dice": 0.296,
+    "n_interior": 80,
+    "n_boundary": 80,
+    "n_noisy": 80,
+    "n_switch_pairs": 80
+  }
+}

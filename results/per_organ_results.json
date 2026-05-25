@@ -1,0 +1,46 @@
+{
+  "seg_only": {
+    "Spleen": {"dice_mean": 0.414, "dice_std": 0.135, "n_dice": 10, "switch_acc": 0.000, "n_switch": 10},
+    "Kidney_L": {"dice_mean": 0.399, "dice_std": 0.066, "n_dice": 10, "switch_acc": 0.100, "n_switch": 10},
+    "Kidney_R": {"dice_mean": 0.369, "dice_std": 0.119, "n_dice": 10, "switch_acc": 0.000, "n_switch": 10},
+    "Pancreas": {"dice_mean": 0.125, "dice_std": 0.096, "n_dice": 9, "switch_acc": 0.556, "n_switch": 9},
+    "Liver": {"dice_mean": 0.602, "dice_std": 0.144, "n_dice": 9, "switch_acc": 0.000, "n_switch": 9},
+    "Stomach": {"dice_mean": 0.213, "dice_std": 0.120, "n_dice": 9, "switch_acc": 0.222, "n_switch": 9},
+    "Aorta": {"dice_mean": 0.188, "dice_std": 0.082, "n_dice": 9, "switch_acc": 0.250, "n_switch": 8},
+    "IVC": {"dice_mean": 0.118, "dice_std": 0.035, "n_dice": 9, "switch_acc": 0.333, "n_switch": 9},
+    "Portal_Vein": {"dice_mean": 0.096, "dice_std": 0.035, "n_dice": 9, "switch_acc": 0.444, "n_switch": 9},
+    "Adrenal_L": {"dice_mean": 0.007, "dice_std": 0.005, "n_dice": 9, "switch_acc": 0.556, "n_switch": 9},
+    "Adrenal_R": {"dice_mean": 0.034, "dice_std": 0.061, "n_dice": 9, "switch_acc": 0.444, "n_switch": 9},
+    "Gallbladder": {"dice_mean": 0.096, "dice_std": 0.046, "n_dice": 9, "switch_acc": 0.111, "n_switch": 9},
+    "Bladder": {"dice_mean": 0.195, "dice_std": 0.087, "n_dice": 9, "switch_acc": 0.000, "n_switch": 2}
+  },
+  "pfa_ours": {
+    "Spleen": {"dice_mean": 0.356, "dice_std": 0.173, "n_dice": 10, "switch_acc": 1.000, "n_switch": 10},
+    "Kidney_L": {"dice_mean": 0.386, "dice_std": 0.128, "n_dice": 10, "switch_acc": 0.900, "n_switch": 10},
+    "Kidney_R": {"dice_mean": 0.432, "dice_std": 0.084, "n_dice": 10, "switch_acc": 0.900, "n_switch": 10},
+    "Pancreas": {"dice_mean": 0.284, "dice_std": 0.204, "n_dice": 9, "switch_acc": 1.000, "n_switch": 9},
+    "Liver": {"dice_mean": 0.223, "dice_std": 0.158, "n_dice": 9, "switch_acc": 0.778, "n_switch": 9},
+    "Stomach": {"dice_mean": 0.134, "dice_std": 0.051, "n_dice": 9, "switch_acc": 0.889, "n_switch": 9},
+    "Aorta": {"dice_mean": 0.356, "dice_std": 0.144, "n_dice": 9, "switch_acc": 0.875, "n_switch": 8},
+    "IVC": {"dice_mean": 0.288, "dice_std": 0.068, "n_dice": 9, "switch_acc": 0.889, "n_switch": 9},
+    "Portal_Vein": {"dice_mean": 0.276, "dice_std": 0.101, "n_dice": 9, "switch_acc": 0.889, "n_switch": 9},
+    "Adrenal_L": {"dice_mean": 0.273, "dice_std": 0.166, "n_dice": 9, "switch_acc": 1.000, "n_switch": 9},
+    "Adrenal_R": {"dice_mean": 0.187, "dice_std": 0.094, "n_dice": 9, "switch_acc": 0.889, "n_switch": 9},
+    "Gallbladder": {"dice_mean": 0.282, "dice_std": 0.101, "n_dice": 9, "switch_acc": 0.889, "n_switch": 9},
+    "Bladder": {"dice_mean": 0.363, "dice_std": 0.168, "n_dice": 9, "switch_acc": 1.000, "n_switch": 2}
+  },
+  "runtime": {
+    "total_params_M": 100.65,
+    "trainable_params_M": 1.90,
+    "trainable_pct": 1.89,
+    "inference_ms": 57.6,
+    "encoder_ms": 50.4,
+    "decoder_ms": 5.3,
+    "peak_memory_MB": 1478,
+    "seg_only_time_per_epoch": 1117,
+    "seg_only_total_time_h": 6.21,
+    "pfa_time_per_epoch": 1177,
+    "pfa_total_time_h": 6.54,
+    "checkpoint_size_MB": 7.3
+  }
+}

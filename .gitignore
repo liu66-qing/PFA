@@ -1,9 +1,12 @@
 # Data and model weights
-results/
 __pycache__/
 *.pyc
 *.pth
 *.pt
+
+# Large result directories (keep JSON summaries)
+results/formal/
+checkpoints/
 
 # LaTeX build artifacts
 paper/*.aux

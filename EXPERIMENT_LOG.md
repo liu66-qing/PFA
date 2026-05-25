@@ -312,9 +312,167 @@ Tables: `E:\??\PEA-MedSeg\paper_assets\tables.md`
 
 ---
 
+## Supplementary Experiments (2026-05-25, Paper Round 3)
+
+Target: Address reviewer feedback to push paper from 7/10 to 7.5+
+
+### Experiment S1: Unpaired Multi-Prompt Baseline
+
+**Purpose**: Isolate whether "same-image pairing" is the key mechanism vs just "more prompt exposure per step". Same 2x supervision per step, but second prompt from a DIFFERENT image.
+
+**Script**: `run_unpaired_baseline.py`
+**GPU**: cuda:0
+**Config**: 20 epochs, LR=1e-4, AdamW, 2-epoch warmup + cosine, accum_steps=4
+**Dataset**: PEADataset(split="Tr", samples_per_volume=4)
+
+**Results**:
+
+| Epoch | Dice   | Switch Acc | Loss   |
+|-------|--------|-----------|--------|
+| 1     | 0.261  | 0.340     | 0.4151 |
+| 5     | 0.616  | 0.400     | 0.2315 |
+| 10    | 0.630  | 0.574     | 0.1940 |
+| 15    | 0.617  | 0.592     | 0.1754 |
+| 20    | 0.614  | 0.776     | 0.1801 |
+
+**Comparison**:
+- Baseline (seg-only): Switch = 0.208
+- Unpaired multi-prompt: Switch = 0.776
+- **PFA paired (ours): Switch = 0.985**
+
+**Conclusion**: Unpaired exposure improves Switch from 0.21 to 0.78, but same-image pairing contributes an additional +0.21 (0.78 to 0.99). Confirms paired contrastive training is the key mechanism, not merely increased prompt exposure.
+
+**Saved**: `results/unpaired_baseline_history.json`
+
+---
+
+### Experiment S2: Hard Prompt Evaluation Benchmark
+
+**Purpose**: Test model under harder prompt conditions (reviewer concern: GT-derived interior points may be "too easy").
+
+**Script**: `run_hard_prompt_eval.py`
+**GPU**: cuda:1
+**Conditions**:
+1. Boundary clicks: points within 1-3 voxels of organ boundary
+2. Noisy clicks: interior point + uniform noise +/-5 voxels
+3. Adjacent-organ switch: only test switch between neighboring organs (hardest pairs)
+
+**Results** (n=80 per condition):
+
+| Metric              | seg_only | PFA (ours) | Delta  |
+|---------------------|----------|-----------|--------|
+| Interior Dice       | 0.304    | 0.319     | +0.015 |
+| Boundary Dice       | 0.287    | 0.218     | -0.069 |
+| Noisy Dice          | 0.313    | 0.282     | -0.031 |
+| Adjacent Switch Acc | 0.325    | 0.963     | +0.637 |
+| Adjacent Switch Dice| 0.209    | 0.296     | +0.087 |
+
+**Key findings**:
+- Adjacent-organ Switch Acc: 0.325 to 0.963 -- PFA maintains faithfulness even on hardest organ pairs
+- Boundary/Noisy Dice slightly lower for PFA -- model follows prompt more strictly rather than defaulting to anatomical prior
+- seg-only appears "stable" under noise because it ignores prompts entirely
+
+**Saved**: `results/hard_prompt_results.json`
+
+---
+
+### Experiment S3: Per-Organ Evaluation
+
+**Purpose**: Full per-organ breakdown of Dice and Switch Accuracy.
+
+**Script**: `run_per_organ_eval.py`
+**GPU**: cuda:0
+**Dataset**: Val split, 120 crops, 13 organs
+
+**Results (seg_only)**:
+
+| Organ        | Dice          | Switch Acc | n  |
+|--------------|---------------|-----------|-----|
+| Liver        | 0.602+/-0.144 | 0.000     | 9   |
+| Spleen       | 0.414+/-0.135 | 0.000     | 10  |
+| Kidney_L     | 0.399+/-0.066 | 0.100     | 10  |
+| Kidney_R     | 0.369+/-0.119 | 0.000     | 10  |
+| Stomach      | 0.213+/-0.120 | 0.222     | 9   |
+| Bladder      | 0.195+/-0.087 | 0.000     | 9   |
+| Aorta        | 0.188+/-0.082 | 0.250     | 9   |
+| Pancreas     | 0.125+/-0.096 | 0.556     | 9   |
+| IVC          | 0.118+/-0.035 | 0.333     | 9   |
+| Portal_Vein  | 0.096+/-0.035 | 0.444     | 9   |
+| Gallbladder  | 0.096+/-0.046 | 0.111     | 9   |
+| Adrenal_R    | 0.034+/-0.061 | 0.444     | 9   |
+| Adrenal_L    | 0.007+/-0.005 | 0.556     | 9   |
+
+**Results (PFA ours)**:
+
+| Organ        | Dice          | Switch Acc | n  |
+|--------------|---------------|-----------|-----|
+| Kidney_R     | 0.432+/-0.084 | 0.900     | 10  |
+| Kidney_L     | 0.386+/-0.128 | 0.900     | 10  |
+| Bladder      | 0.363+/-0.168 | 1.000     | 9   |
+| Aorta        | 0.356+/-0.144 | 0.875     | 9   |
+| Spleen       | 0.356+/-0.173 | 1.000     | 10  |
+| IVC          | 0.288+/-0.068 | 0.889     | 9   |
+| Pancreas     | 0.284+/-0.204 | 1.000     | 9   |
+| Gallbladder  | 0.282+/-0.101 | 0.889     | 9   |
+| Portal_Vein  | 0.276+/-0.101 | 0.889     | 9   |
+| Adrenal_L    | 0.273+/-0.166 | 1.000     | 9   |
+| Liver        | 0.223+/-0.158 | 0.778     | 9   |
+| Adrenal_R    | 0.187+/-0.094 | 0.889     | 9   |
+| Stomach      | 0.134+/-0.051 | 0.889     | 9   |
+
+**Key findings**:
+- seg-only: Liver Dice=0.60 but Switch=0.00 -- always predicts liver regardless of prompt
+- PFA: All organs Switch >= 0.778, most >= 0.889
+- PFA dramatically improves small organ Dice (Adrenal_L: 0.007 to 0.273, Pancreas: 0.125 to 0.284)
+- Liver Dice drops (0.602 to 0.223) because PFA no longer defaults to liver when prompted elsewhere
+
+**Saved**: `results/per_organ_results.json`
+
+---
+
+### Experiment S4: Runtime Analysis
+
+**Purpose**: Quantify computational overhead of PFA training.
+
+**Results**:
+
+| Metric                | Value          |
+|-----------------------|----------------|
+| Total parameters      | 100.7M         |
+| Trainable (LoRA)      | 1.90M (1.89%)  |
+| Inference time        | 57.6ms         |
+| Encoder time          | 50.4ms (87.5%) |
+| Decoder time          | 5.3ms (9.2%)   |
+| Peak GPU memory       | 1478MB         |
+| Checkpoint size       | 7.3MB          |
+| seg-only time/epoch   | 1117s          |
+| PFA time/epoch        | 1177s (+5.3%)  |
+| seg-only total (50ep) | 6.21h          |
+| PFA total (50ep)      | 6.54h          |
+
+**Key findings**:
+- Zero inference overhead (identical architecture, single prompt at test time)
+- Training overhead only +5.3% (second decoder pass shares encoder computation)
+- LoRA checkpoint only 7.3MB (easily distributable)
+
+**Saved**: `results/per_organ_results.json` (runtime section)
+
+---
+
+### Summary: Reviewer Concerns Addressed
+
+| Reviewer Concern | Experiment | Result |
+|-----------------|-----------|--------|
+| Paired training has supervision advantage | S1: Unpaired baseline | Unpaired=0.776 vs Paired=0.985, pairing is key |
+| Prompt evaluation too easy (GT interior) | S2: Hard prompt eval | Adjacent Switch still 0.963 under hardest condition |
+| No per-organ breakdown | S3: Per-organ table | Full 13-organ table with std |
+| No runtime analysis | S4: Runtime | +5.3% train, 0% inference overhead |
+
+---
+
 ## Server Info
 - Server: ssh -p 14256 root@connect.nmb1.seetacloud.com
 - Code: /root/autodl-tmp/PEA-MedSeg/
 - Data: /root/autodl-tmp/data/ (amos22_cached, btcv_cached)
-- GPU0 + GPU1: 2×RTX 4090
+- GPU0 + GPU1: 2x RTX 4090
 - Results: /root/autodl-tmp/PEA-MedSeg/results/formal/

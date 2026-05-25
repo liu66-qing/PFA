@@ -1,0 +1,7 @@
+[
+  {"epoch": 1, "dice": 0.261, "switch_acc": 0.340, "loss": 0.4151, "time": 600},
+  {"epoch": 5, "dice": 0.616, "switch_acc": 0.400, "loss": 0.2315, "time": 622},
+  {"epoch": 10, "dice": 0.630, "switch_acc": 0.574, "loss": 0.1940, "time": 626},
+  {"epoch": 15, "dice": 0.617, "switch_acc": 0.592, "loss": 0.1754, "time": 627},
+  {"epoch": 20, "dice": 0.614, "switch_acc": 0.776, "loss": 0.1801, "time": 634}
+]
