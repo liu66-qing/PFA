@@ -1,0 +1,46 @@
+% AAAI-26 Style (simplified compatible version)
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{aaai26}[2025/01/01 AAAI-26 Style]
+
+% Page layout
+\usepackage[letterpaper,margin=0.75in,columnsep=0.33in]{geometry}
+\twocolumn
+
+% Typography
+\usepackage{microtype}
+
+% Section formatting
+\renewcommand{\section}{\@startsection{section}{1}{\z@}%
+  {-12pt \@plus -2pt \@minus -2pt}{6pt \@plus 2pt}%
+  {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{\z@}%
+  {-8pt \@plus -2pt \@minus -2pt}{4pt \@plus 2pt}%
+  {\normalfont\normalsize\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{\z@}%
+  {-6pt \@plus -2pt \@minus -1pt}{3pt \@plus 1pt}%
+  {\normalfont\normalsize\bfseries\itshape}}
+
+% Title formatting
+\renewcommand{\maketitle}{%
+  \twocolumn[\begin{center}%
+    {\LARGE\bfseries\@title\par}%
+    \vskip 1em%
+    {\large\@author\par}%
+    \vskip 1.5em%
+  \end{center}]%
+}
+
+% Bibliography style
+
+% Disable page numbers for review
+\pagestyle{empty}
+\thispagestyle{empty}
+
+
+% Fix overfull hbox - allow more flexible line breaking
+\tolerance=1000
+\emergencystretch=1.5em
+\hbadness=10000
+\sloppy
+
+\endinput

@@ -1,0 +1,64 @@
+\section{Analysis and Discussion}
+
+\subsection{Why Paired Training Works}
+
+The effectiveness of paired prompt training can be understood through the lens of counterfactual supervision. In single-prompt training, the model observes $(x, p_A, y_A)$ and learns $f(x, p_A) \approx y_A$. However, nothing prevents the model from learning $f(x, \cdot) \approx y_A$ for \emph{all} prompts---the training signal is consistent with prompt-independent behavior. Paired training adds the simultaneous constraint $f(x, p_B) \approx y_B$, which is only satisfiable if the model actually uses the prompt to differentiate its output.
+
+This is analogous to the distinction between correlation and causation in causal inference: single-prompt training establishes correlation between prompts and outputs (they co-occur), while paired training establishes a causal relationship (changing the prompt \emph{causes} the output to change). The model must learn a prompt-conditioned mapping rather than a prompt-independent one.
+
+Importantly, this mechanism is \emph{architecture-agnostic}. It does not depend on specific model components or loss formulations---any promptable model trained with paired prompts will be forced to use the prompt signal. This generality is confirmed by our ablation: the specific auxiliary losses (grounding, switch margin) contribute minimally compared to the paired exposure itself.
+
+\subsection{Why Grounding Alone Fails}
+
+A surprising finding is that grounding loss \emph{without} paired training actually decreases Switch Accuracy (0.55$\to$0.43). We hypothesize this occurs because grounding reinforces the model's spatial attention to the prompt location without requiring output differentiation. The model learns to activate the region around the prompt point, but since anatomical priors dominate, it still predicts the same organ---just with slightly better spatial localization of that prediction. In effect, grounding makes the model more confident in its unfaithful prediction rather than more faithful.
+
+This finding has practical implications: naive attempts to improve prompt following by adding prompt-location supervision can backfire without the paired training paradigm. The model needs to see \emph{contrasting} prompts, not just be told to attend to the prompt location.
+
+\subsection{The Dice-Switch Tradeoff}
+
+Our method incurs a 4.4-point Dice cost compared to seg-only. This tradeoff is inherent and can be understood quantitatively. A model that always predicts the largest organ achieves high average Dice (by being correct for the dominant class) but zero Switch Accuracy. Conversely, a perfectly faithful model must sometimes predict smaller, harder organs when prompted, reducing average Dice because small organs are inherently harder to segment.
+
+The 4.4-point gap represents the cost of controllability---a modest price for transforming an uncontrollable model into a reliable interactive tool. In clinical practice, a model that achieves 0.72 Dice but ignores the clinician 52\% of the time is far less useful than one achieving 0.68 Dice that reliably follows instructions 99\% of the time.
+
+We note that the absolute Dice of 0.676 is achieved on a challenging fixed prompt bank that includes all organ pairs (including small organs like adrenal glands). Per-organ analysis shows that large organs (liver, spleen) maintain Dice $>$0.85 while the gap concentrates on small, anatomically challenging structures where both methods struggle.
+
+\subsection{Implications for Evaluation Practice}
+
+Our findings have broader implications for how interactive segmentation models should be evaluated. Standard practice reports only Dice (or IoU) averaged across prompts, which conflates segmentation quality with prompt faithfulness. We argue that Switch Accuracy---or similar prompt-faithfulness diagnostics---should complement standard Dice evaluation for models claiming interactive or promptable segmentation capability.
+
+The problem we identify is not unique to SAM-Med3D---it is a structural consequence of single-prompt training with strong image priors. Any promptable model trained on data where certain classes dominate (common in medical imaging) is susceptible to this failure mode. Our Switch Accuracy metric provides a simple, computationally cheap diagnostic that can be applied to any promptable segmentation model.
+
+\subsection{Computational Efficiency}
+
+Table~\ref{tab:overhead} summarizes the computational overhead. The second decoder forward pass adds only 5.3\% training time because the expensive image encoder computation (which dominates wall-clock time) is shared between both prompts. At inference, only a single prompt is processed per interaction (standard clinical use), so there is zero deployment overhead. The method requires no architectural changes, no additional parameters, and no modifications to the inference pipeline.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Computational overhead analysis. Paired training adds minimal cost during training and zero cost at inference.}
+\label{tab:overhead}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Metric} & \textbf{seg-only} & \textbf{Ours} \\
+\midrule
+Total parameters & 100.5M & 100.5M \\
+Trainable parameters & 1.9M (1.89\%) & 1.9M (1.89\%) \\
+Training time/epoch & 1117s & 1177s (+5.3\%) \\
+Total training (50ep) & 6.2h & 6.5h \\
+Inference time & identical & identical \\
+Checkpoint size & 7.6MB & 7.6MB \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Limitations and Future Work}
+
+\textbf{Single architecture.} We validate on SAM-Med3D only. While the mechanism (paired exposure) is architecture-agnostic in principle, empirical validation on SegVol, Medical SAM2, or other 3D medical foundation models would strengthen generality claims. We attempted SegVol validation but encountered version incompatibility issues that prevented fair comparison.
+
+\textbf{Dice cost.} The 4.4-point Dice gap, while modest, exists. Future work could explore Pareto-optimal training schedules (e.g., curriculum from paired to single-prompt) or adaptive loss weighting to minimize this cost while maintaining faithfulness.
+
+\textbf{Annotation requirement.} Paired prompt sampling requires multi-organ annotations in the same volume. This is readily available in standard benchmarks (AMOS, BTCV, TotalSegmentator) but may limit applicability to single-organ datasets. Synthetic pairing strategies (e.g., using pseudo-labels for the second organ) could address this limitation.
+
+\textbf{Point prompts only.} We evaluate point-prompt faithfulness. Extension to box prompts (MedSAM) and text prompts (SegVol) remains important future work, though the paired training principle should transfer directly.
+
+\textbf{Clinical validation.} While our quantitative results are strong, clinical deployment would require user studies to assess whether improved Switch Accuracy translates to improved annotation efficiency and clinician satisfaction in practice.

@@ -1,0 +1,9 @@
+\section{Conclusion}
+
+We identify prompt unfaithfulness as a hidden failure mode in 3D medical Segment Anything Models: these models achieve acceptable segmentation Dice while largely ignoring user prompts (Switch Accuracy 20.8\%). This failure is distinct from prompt robustness, hidden by standard evaluation metrics, and catastrophic for interactive clinical use.
+
+We propose Switch Accuracy as a diagnostic metric that exposes this failure, and trace the root cause to single-prompt training, which never constrains counterfactual prompt behavior. Our solution---Paired Prompt-Contrastive Training---exposes the model to two different prompts per image during training, forcing prompt-conditioned output differentiation.
+
+Comprehensive mechanism ablation reveals that paired prompt exposure is the dominant factor (+40 points Switch Accuracy), while specific loss designs provide only marginal additional benefit. The method achieves 99.3\% Switch Accuracy (from 20.8\% baseline) with 4.4-point Dice cost, generalizes across datasets (BTCV: Switch 1.000), and adds negligible overhead (5.3\% training time, zero inference cost).
+
+Our findings suggest that prompt faithfulness should be a standard evaluation criterion for interactive segmentation models, alongside traditional accuracy metrics. The paired training paradigm is simple, effective, and broadly applicable to any promptable model where controllability is essential.

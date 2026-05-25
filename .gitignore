@@ -1,0 +1,24 @@
+# Data and model weights
+results/
+__pycache__/
+*.pyc
+*.pth
+*.pt
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
+
+# System
+.DS_Store
+*.swp
+*.swo
+
+# Backup files
+*.bak
